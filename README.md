@@ -1,100 +1,81 @@
-# 🧠 REload.Me
+# REloadAI – Engenharia Reversa com IA (GPT-4o)
 
-**REload.Me** – *A aula de reverse mais fácil do mundo. Pra fazer todos entenderem de uma vez.*
+[![Python](https://img.shields.io/badge/Python-3.8%2B-green)](https://www.python.org/downloads/release/python-380/) [![radare2](https://img.shields.io/badge/radare2-%F0%9F%94%AE-red)](https://github.com/radareorg/radare2) [![OpenAI API](https://img.shields.io/badge/OpenAI-API-blue)](https://platform.openai.com/docs/introduction) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Engenharia Reversa e Inteligência Artificial para quem pensa diferente. Descomplicando a exploração com LLMs.
+> **O que é**: Um script Python para **análise de binários** (checksec, strings suspeitas, disassembly) usando **radare2** e **GPT** para gerar insights e até **exploits automáticos**.
 
----
 
-## 🎯 Visão do Projeto
+## ✨ Funcionalidades Principais
 
-**REload.Me** é uma plataforma educacional hacker criada por e para pessoas neurodivergentes que querem aprender Engenharia Reversa, Exploitation e Red Team com o poder da Inteligência Artificial.
+- **Análise Inicial do Binário** (`checksec`, formato ELF/PE, strings suspeitas)
+- **Análise de Funções**: Em especial `main` – desassembly completo, explicado passo a passo pelo GPT.
+- **Geração Automática de Exploits**: Se for detectado o uso de `rand()` ou outra lógica pseudoaleatória, o GPT cria um *exploit em C* para reproduzir/romper a criptografia.
+- **Relatórios Automatizados**: Produzimos
+  - `REloadAI_output.md` (relatório técnico em Markdown)
+  - `REloadAI_Aula.md` (explicações para iniciantes)
+  - `REloadAI_output.pdf` (PDF para leitura offline)
 
-Utilizando Ghidra, GDB, LLMs (como chatGPT, Claude ou Ollama) e prompts personalizados, o projeto ensina como explorar binários de forma visual, didática e automatizada.
+## 🏁 Requisitos
 
----
+1. **Python 3.8+**
+2. **radare2** instalado ([Guia de Instalação](https://github.com/radareorg/radare2))
+3. **Bibliotecas Python**:
+   ```bash
+   pip install r2pipe rich fpdf openai
+   ```
+4. **Chave de API** do [OpenAI](https://platform.openai.com/docs/introduction):
+   - Salve em `~/.r2ai.openai-key`
+   ```bash
+   echo "sk-1234..." > ~/.r2ai.openai-key
+   ```
 
-## 🔥 O que você vai aprender
+## 🚀 Uso
 
-- Como usar **LLMs para comentar automaticamente funções de binários**
-- Renomear e facilitar o entendimento de código assembly o/
-- Integração de **GDB + IA** para RE assistida
-- Uso real de **prompt engineering ofensivo**
-- Exploração assistida com storytelling prático
-- Visualização no Ghidra com anotações automatizadas
-
----
-
-## 🧱 Estrutura do Projeto
-
-```
-REload.Me/
-├── Lab01_AI_RE/
-│   ├── bin/
-│   │   └── vuln-binary           # Binário vulnerável usado no lab
-│   ├── gdb_assist.py            # Script que integra GDB + IA
-│   ├── prompt_templates/
-│   │   └── comment_function.txt # Template para comentar funções
-│   ├── ai_output/               # Comentários gerados pela IA
-│   └── docker-compose.yml       # Ambiente isolado com GDB + Python + Ollama opcional
-├── branding/
-│   ├── logo.png
-│   ├── paleta-cores.md
-│   └── fontes.md
-├── site/
-│   ├── index.html               # Landing page simples
-│   └── style.css
-└── README.md
+```bash
+python reloadai.py -f ./seu_binario_alvo
 ```
 
----
+### Exemplos
 
-## 🛠️ Stack Utilizada
+1. **Analisar e gerar relatórios**:
+   ```bash
+   python reloadai.py -f ./rev_simpleencryptor/encrypt
+   ```
+2. **Verificar Exploit** (se encontrar `rand()` na `main`):
+   - O script perguntará ao GPT para criar automaticamente um `exploit.c` e salvá-lo localmente.
 
-- **GhidraMCP + ChatGPT / Claude AI**
-- **GDB** também para inspeção de binários
-- **Python 3.10+** com `pexpect` para controle de execução
-- **Ollama (opcional)** para uso com LLMs locais (Mistral, LLaMA, etc)
-- **Prompt Engineering** com sistema de templates
+## 📂 Estrutura de Saída
 
----
+- **REloadAI_output.md**: Relatório detalhado com assembly e comentários do GPT.
+- **REloadAI_Aula.md**: Tópicos para uma aula simplificada.
+- **REloadAI_output.pdf**: Versão PDF do relatório.
+- **exploit.c**: Se houver uso de `rand()`, o GPT gera automaticamente este arquivo.
 
-## 🧪 Primeiro Lab: "Comentando a main() com IA"
+## 🔧 Customização
 
-### Objetivo:
-Pegar uma função `main()` descompilada e fazer a IA:
-- Explicar o que a função faz passo a passo
-- Sugerir possíveis vulnerabilidades (ex: buffer overflow)
-- Criar rascunhos de exploit ou entradas de fuzz
+- Se quiser analisar outra função além de `main`, ajuste o script no local onde definimos `main_func`.
+- Para capturar mais strings, inclua outros termos na lista `['flag','key','secret',...]`.
+- Ajuste o `prompt_exploit` se precisar de um estilo de exploit mais específico.
 
-### Exemplo de prompt:
-```txt
-Analyze the following C-like function extracted from a binary. Comment line-by-line what each instruction does, highlight possible vulnerabilities, and suggest how it could be exploited. Keep it simple, clear and practical.
+## 🤝 Contribuindo
 
-{function_code}
-```
+1. Faça um **Fork**.
+2. Crie uma nova **Branch**: `git checkout -b feature/sua-ideia`.
+3. Commit suas mudanças: `git commit -m 'Adicionei uma feature'`.
+4. Faça **Push** no seu fork: `git push origin feature/sua-ideia`.
+5. Abra um **Pull Request** neste repositório.
 
-Resultado esperado:
-- Comentários automáticos salvos em `ai_output/main_analysis.txt`
-- Código revisado pode ser importado para o Ghidra com anotações
+## 📝 Licença
 
----
+Este projeto está sob a licença [MIT](https://opensource.org/licenses/MIT). Fique à vontade para usar e modificar.
 
-## 💡 Por que esse projeto é diferente?
+## 📢 Agradecimentos
 
-- Foco em **acessibilidade cognitiva** para autistas e neurodivergentes
-- Materiais práticos e visuais
-- Ferramentas que você realmente vai usar em CTFs, pentests e Red Team
-- Ensino com IA real, não teoria
-
----
-
-## 📬 Contato
-
-Feito por **Marcos Tolosa**  
-🔗 [LinkedIn](https://linkedin.com/in/marcos-tolosa) | 🧠 [HackTheBox Top 100](https://app.hackthebox.com/profile/44238)
+- [radare2](https://github.com/radareorg/radare2) por fornecer uma suíte de engenharia reversa incrível.
+- [OpenAI](https://platform.openai.com/docs/introduction) pela API que alimenta as explicações e geração de exploit.
+- [Hack The Box](https://www.hackthebox.com/) pelo aprendizado prático em desafios de segurança.
 
 ---
 
-Pronto para hackear a forma como você aprende Engenharia Reversa?  
-**REload.Me é o seu novo ponto de partida.**
+**REloadAI** – Seu atalho para entender, explorar e **desvendar** binários de maneira super didática!
+
