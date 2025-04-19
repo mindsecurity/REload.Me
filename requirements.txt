@@ -43,7 +43,7 @@ lief==0.14.1  # For binary manipulation
 # Cloud and integration
 boto3==1.34.37  # For AWS integration
 requests==2.31.0
-aiohttp==3.9.3
+aiohttp==3.11.0b0
 websockets==12.0
 
 # Security
