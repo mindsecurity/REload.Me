@@ -16,6 +16,11 @@ from rich.markdown import Markdown
 
 from core.analyzer import BinaryAnalyzer
 from core.exploit_gen import ExploitGenerator
+from core.dynamic_analyzer import DynamicAnalyzer
+from core.binary_differ import BinaryDiffer
+from core.ctf_solver import CTFSolver
+from core.cfg_visualizer import CFGVisualizer
+from core.malware_generator import MalwareGenerator
 from monetization.licensing import LicenseManager
 from monetization.analytics import UsageAnalytics
 from api.rest_api import app
@@ -107,6 +112,176 @@ class REloadAI:
         
         analyzer.close()
         return results
+    
+    def dynamic_analysis(self, file_path: str, sandbox_type: str = "docker", timeout: int = 30) -> Dict:
+        """Perform dynamic analysis on binary"""
+        self.console.rule(f"[bold blue]Dynamic Analysis: {os.path.basename(file_path)}[/bold blue]")
+        
+        dynamic_analyzer = DynamicAnalyzer(file_path, sandbox_type)
+        
+        with self.console.status(f"[bold green]Running dynamic analysis in {sandbox_type} sandbox..."):
+            results = dynamic_analyzer.analyze(timeout)
+        
+        if results.get('error'):
+            self.console.print(f"[red]Error: {results['error']}[/red]")
+            return results
+        
+        # Display results
+        self._display_dynamic_analysis(results)
+        
+        return results
+    
+    def diff_binaries(self, binary1: str, binary2: str) -> Dict:
+        """Compare two binaries for differences"""
+        self.console.rule(f"[bold blue]Binary Diff: {os.path.basename(binary1)} vs {os.path.basename(binary2)}[/bold blue]")
+        
+        differ = BinaryDiffer(binary1, binary2)
+        
+        with self.console.status("[bold green]Analyzing differences..."):
+            diff_results = differ.diff()
+        
+        self._display_diff_results(diff_results)
+        
+        return diff_results
+    
+    def solve_ctf(self, challenge_path: str) -> Dict:
+        """Attempt to automatically solve CTF challenge"""
+        self.console.rule(f"[bold blue]CTF Solver: {os.path.basename(challenge_path)}[/bold blue]")
+        
+        solver = CTFSolver(challenge_path)
+        
+        with self.console.status("[bold green]Analyzing challenge..."):
+            result = solver.solve()
+        
+        self._display_ctf_solution(result)
+        
+        return result
+    
+    def visualize_cfg(self, file_path: str, function_name: str = "main", output_format: str = "html") -> str:
+        """Generate 3D visualization of control flow graph"""
+        self.console.rule(f"[bold blue]3D CFG Visualization: {os.path.basename(file_path)} - {function_name}[/bold blue]")
+        
+        visualizer = CFGVisualizer(file_path)
+        
+        with self.console.status("[bold green]Generating 3D visualization..."):
+            output_file = visualizer.export_cfg(function_name, output_format)
+        
+        if output_file:
+            self.console.print(f"[green]CFG visualization saved to {output_file}[/green]")
+            return output_file
+        else:
+            self.console.print("[red]Failed to generate CFG visualization[/red]")
+            return None
+    
+    def generate_malware(self, platform: str, payload_type: str, config: Dict, obfuscation: List[str] = None) -> Dict:
+        """Generate custom malware for red team operations"""
+        self.console.rule(f"[bold blue]Malware Generator: {platform} - {payload_type}[/bold blue]")
+        
+        generator = MalwareGenerator()
+        
+        with self.console.status("[bold green]Generating payload..."):
+            result = generator.generate(platform, payload_type, config, obfuscation)
+        
+        if result.get('success'):
+            self._display_malware_result(result)
+        else:
+            self.console.print(f"[red]Error: {result.get('error')}[/red]")
+        
+        return result
+    
+    def _display_dynamic_analysis(self, results: Dict):
+        """Display dynamic analysis results"""
+        summary = results.get('summary', {})
+        
+        table = Table(title="Dynamic Analysis Summary")
+        table.add_column("Metric", style="cyan")
+        table.add_column("Value", style="green")
+        
+        table.add_row("Total Syscalls", str(summary.get('total_syscalls', 0)))
+        table.add_row("Network Events", str(summary.get('network_events', 0)))
+        table.add_row("File Operations", str(summary.get('file_operations', 0)))
+        table.add_row("Suspicious Behaviors", str(summary.get('suspicious_behaviors_detected', 0)))
+        
+        self.console.print(table)
+        
+        # Display suspicious behaviors
+        if results.get('suspicious_behaviors'):
+            self.console.print("\n[bold red]Suspicious Behaviors Detected:[/bold red]")
+            for behavior in results['suspicious_behaviors']:
+                self.console.print(Panel(
+                    f"[bold]{behavior['type']}[/bold]\n"
+                    f"Description: {behavior['description']}\n"
+                    f"Severity: {behavior['severity']}",
+                    title=f"Suspicious Behavior",
+                    border_style="red"
+                ))
+    
+    def _display_diff_results(self, diff_results: Dict):
+        """Display binary diff results"""
+        summary = diff_results.get('summary', {})
+        
+        table = Table(title="Binary Diff Summary")
+        table.add_column("Category", style="cyan")
+        table.add_column("Changes", style="green")
+        
+        table.add_row("Metadata Changes", str(summary.get('metadata_changes', 0)))
+        table.add_row("Functions Added", str(summary.get('functions', {}).get('added', 0)))
+        table.add_row("Functions Removed", str(summary.get('functions', {}).get('removed', 0)))
+        table.add_row("Functions Modified", str(summary.get('functions', {}).get('modified', 0)))
+        table.add_row("Protection Changes", str(summary.get('protection_changes', 0)))
+        table.add_row("Overall Similarity", f"{summary.get('overall_similarity', 0):.2%}")
+        
+        self.console.print(table)
+        
+        # Display protection changes
+        if diff_results.get('protections_diff'):
+            self.console.print("\n[bold yellow]Protection Changes:[/bold yellow]")
+            for protection, change in diff_results['protections_diff'].items():
+                self.console.print(f"• {protection}: {change['binary1']} → {change['binary2']} ({change['change']})")
+    
+    def _display_ctf_solution(self, result: Dict):
+        """Display CTF solution result"""
+        if result.get('success'):
+            self.console.print(Panel(
+                f"[bold green]Challenge Solved![/bold green]\n"
+                f"Type: {result.get('challenge_type')}\n"
+                f"Solution: {result.get('solution')}",
+                title="CTF Solution",
+                border_style="green"
+            ))
+            
+            if result.get('steps'):
+                self.console.print("\n[bold cyan]Solution Steps:[/bold cyan]")
+                for step in result['steps']:
+                    self.console.print(f"• {step}")
+        else:
+            self.console.print(Panel(
+                f"[bold red]Failed to solve challenge[/bold red]\n"
+                f"Type: {result.get('challenge_type')}\n"
+                f"Error: {result.get('error')}",
+                title="CTF Failure",
+                border_style="red"
+            ))
+    
+    def _display_malware_result(self, result: Dict):
+        """Display malware generation result"""
+        self.console.print(Panel(
+            f"[bold green]Malware Generated Successfully[/bold green]\n"
+            f"Platform: {result.get('platform')}\n"
+            f"Payload Type: {result.get('payload_type')}\n"
+            f"Obfuscation: {', '.join(result.get('obfuscation', []))}",
+            title="Malware Generation Result",
+            border_style="green"
+        ))
+        
+        if result.get('binary_path'):
+            self.console.print(f"\n[cyan]Binary saved to: {result['binary_path']}[/cyan]")
+        
+        # Save payload code to file
+        with open(f"payload_{result['platform']}_{result['payload_type']}.c", "w") as f:
+            f.write(result['payload_code'])
+        
+        self.console.print(f"[cyan]Payload code saved to: payload_{result['platform']}_{result['payload_type']}.c[/cyan]")
     
     def _display_file_info(self, info: Dict):
         """Display file information"""
@@ -250,7 +425,7 @@ class REloadAI:
             self.console.print("[green]Report saved to reloadai_report.md[/green]")
 
 def main():
-    parser = argparse.ArgumentParser(description="REloadAI - Automated Binary Analysis & Exploit Generation")
+    parser = argparse.ArgumentParser(description="REloadAI v2.0 - Automated Binary Analysis & Exploit Generation")
     parser.add_argument("-f", "--file", help="Binary file to analyze")
     parser.add_argument("-l", "--license", help="License key for authentication")
     parser.add_argument("--api", action="store_true", help="Start API server")
@@ -259,6 +434,25 @@ def main():
     parser.add_argument("--features", nargs="+", help="Features to use", 
                        default=["basic_analysis", "string_extraction", "function_analysis"])
     parser.add_argument("--report", action="store_true", help="Generate analysis report")
+    
+    # New arguments for new features
+    parser.add_argument("--dynamic", action="store_true", help="Perform dynamic analysis")
+    parser.add_argument("--sandbox", choices=["docker", "unicorn", "frida"], default="docker", 
+                       help="Sandbox type for dynamic analysis")
+    parser.add_argument("--diff", nargs=2, metavar=("BINARY1", "BINARY2"), 
+                       help="Compare two binaries")
+    parser.add_argument("--ctf", help="Attempt to solve CTF challenge")
+    parser.add_argument("--cfg", help="Generate 3D CFG visualization")
+    parser.add_argument("--function", default="main", help="Function name for CFG visualization")
+    parser.add_argument("--malware", action="store_true", help="Generate custom malware")
+    parser.add_argument("--platform", choices=["windows", "linux", "macos"], default="windows", 
+                       help="Target platform for malware")
+    parser.add_argument("--payload", choices=["reverse_shell", "bind_shell", "meterpreter", "command_exec", "file_download"], 
+                       default="reverse_shell", help="Payload type for malware")
+    parser.add_argument("--obfuscate", nargs="+", choices=["xor", "base64", "aes", "polymorphic", "metamorphic"], 
+                       help="Obfuscation techniques for malware")
+    parser.add_argument("--lhost", default="127.0.0.1", help="LHOST for reverse shell")
+    parser.add_argument("--lport", type=int, default=4444, help="LPORT for reverse shell")
     
     args = parser.parse_args()
     
@@ -270,8 +464,24 @@ def main():
     elif args.file:
         results = reload_ai.analyze_file(args.file, args.features)
         
+        if args.dynamic:
+            reload_ai.dynamic_analysis(args.file, args.sandbox)
+        
+        if args.cfg:
+            reload_ai.visualize_cfg(args.file, args.function)
+        
         if args.report:
             reload_ai.generate_report(results)
+    elif args.diff:
+        reload_ai.diff_binaries(args.diff[0], args.diff[1])
+    elif args.ctf:
+        reload_ai.solve_ctf(args.ctf)
+    elif args.malware:
+        config = {
+            'lhost': args.lhost,
+            'lport': args.lport
+        }
+        reload_ai.generate_malware(args.platform, args.payload, config, args.obfuscate)
     else:
         parser.print_help()
 
