@@ -16,7 +16,7 @@ stripe==7.12.0
 # sqlite3 - já vem com Python, não precisa instalar
 redis==5.0.1
 python-dotenv==1.0.1
-cryptography==42.0.2
+cryptography==44.0.1
 pyjwt==2.8.0
 python-magic==0.4.27  # Corrigido de magic para python-magic
 
