@@ -1,0 +1,6 @@
+venv/
+tests/
+challenges/
+
+# files
+.env

@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REloadAI Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.13.3/cdn.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #6366f1;
+            --secondary: #4f46e5;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --background: #0f172a;
+            --surface: #1e293b;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--surface);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .stat-card h3 {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .progress-bar .fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        
+        .upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 1rem;
+            padding: 3rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+        
+        .upload-area.dragover {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+        
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--text);
+        }
+        
+        .analysis-results {
+            background: var(--surface);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .tab {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+        
+        .tab.active {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        .exploit-code {
+            background: #1a1a1a;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            font-family: monospace;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+        
+        .vulnerability-card {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .vulnerability-card .type {
+            color: var(--danger);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .protection-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .protection-enabled {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+        
+        .protection-disabled {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+        
+        .marketplace-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .exploit-card {
+            background: var(--surface);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.2s ease;
+        }
+        
+        .exploit-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        
+        .price-tag {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--success);
+        }
+    </style>
+</head>
+<body>
+    <div class="container" x-data="app()">
+        <header class="header">
+            <div class="logo">REloadAI</div>
+            <nav>
+                <button class="btn btn-secondary" @click="currentView = 'dashboard'">Dashboard</button>
+                <button class="btn btn-secondary" @click="currentView = 'marketplace'">Marketplace</button>
+                <button class="btn">Analyze Binary</button>
+            </nav>
+        </header>
+        
+        <template x-if="currentView === 'dashboard'">
+            <div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total Analyses</h3>
+                        <div class="value" x-text="stats.totalAnalyses"></div>
+                        <div class="progress-bar">
+                            <div class="fill" :style="`width: ${(stats.totalAnalyses / stats.monthlyLimit) * 100}%`" 
+                                 style="background: var(--primary)"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <h3>Vulnerabilities Found</h3>
+                        <div class="value" x-text="stats.vulnerabilitiesFound"></div>
+                        <div class="progress-bar">
+                            <div class="fill" :style="`width: ${stats.successRate}%`" 
+                                 style="background: var(--danger)"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <h3>Exploits Generated</h3>
+                        <div class="value" x-text="stats.exploitsGenerated"></div>
+                        <div class="progress-bar">
+                            <div class="fill" :style="`width: ${(stats.exploitsGenerated / stats.vulnerabilitiesFound) * 100}%`" 
+                                 style="background: var(--success)"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <h3>API Usage</h3>
+                        <div class="value" x-text="`${stats.apiUsage} / ${stats.apiLimit}`"></div>
+                        <div class="progress-bar">
+                            <div class="fill" :style="`width: ${(stats.apiUsage / stats.apiLimit) * 100}%`" 
+                                 style="background: var(--warning)"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="upload-area" 
+                     @dragover.prevent="dragover = true" 
+                     @dragleave="dragover = false"
+                     @drop.prevent="handleDrop"
+                     :class="{ 'dragover': dragover }">
+                    <i class="fas fa-cloud-upload-alt fa-3x" style="margin-bottom: 1rem; color: var(--primary)"></i>
+                    <h2>Drag & Drop Binary File</h2>
+                    <p style="color: var(--text-muted); margin: 1rem 0">or</p>
+                    <button class="btn" @click="$refs.fileInput.click()">Browse Files</button>
+                    <input type="file" x-ref="fileInput" style="display: none" @change="handleFileSelect">
+                </div>
+                
+                <template x-if="analysis">
+                    <div class="analysis-results">
+                        <div class="tabs">
+                            <div class="tab" 
+                                 :class="{ 'active': activeTab === 'info' }"
+                                 @click="activeTab = 'info'">File Info</div>
+                            <div class="tab" 
+                                 :class="{ 'active': activeTab === 'protections' }"
+                                 @click="activeTab = 'protections'">Protections</div>
+                            <div class="tab" 
+                                 :class="{ 'active': activeTab === 'vulnerabilities' }"
+                                 @click="activeTab = 'vulnerabilities'">Vulnerabilities</div>
+                            <div class="tab" 
+                                 :class="{ 'active': activeTab === 'exploits' }"
+                                 @click="activeTab = 'exploits'">Exploits</div>
+                        </div>
+                        
+                        <template x-if="activeTab === 'info'">
+                            <div>
+                                <h3 style="margin-bottom: 1rem">File Information</h3>
+                                <template x-for="[key, value] in Object.entries(analysis.file_info)" :key="key">
+                                    <div style="margin-bottom: 0.5rem">
+                                        <strong x-text="key + ':'"></strong>
+                                        <span x-text="value" style="margin-left: 0.5rem"></span>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                        
+                        <template x-if="activeTab === 'protections'">
+                            <div>
+                                <h3 style="margin-bottom: 1rem">Security Protections</h3>
+                                <div style="display: flex; flex-wrap: wrap; gap: 1rem">
+                                    <template x-for="[key, value] in Object.entries(analysis.protections)" :key="key">
+                                        <div class="protection-badge" :class="value ? 'protection-enabled' : 'protection-disabled'">
+                                            <i class="fas" :class="value ? 'fa-shield-alt' : 'fa-times-circle'"></i>
+                                            <span x-text="key.toUpperCase()"></span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+                        
+                        <template x-if="activeTab === 'vulnerabilities'">
+                            <div>
+                                <h3 style="margin-bottom: 1rem">Detected Vulnerabilities</h3>
+                                <template x-for="(vuln, index) in analysis.vulnerabilities" :key="index">
+                                    <div class="vulnerability-card">
+                                        <div class="type" x-text="vuln.type"></div>
+                                        <div><strong>Function:</strong> <span x-text="vuln.function"></span></div>
+                                        <div><strong>Reason:</strong> <span x-text="vuln.reason"></span></div>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                        
+                        <template x-if="activeTab === 'exploits'">
+                            <div>
+                                <h3 style="margin-bottom: 1rem">Generated Exploits</h3>
+                                <template x-if="analysis.exploit_code">
+                                    <div>
+                                        <div class="exploit-code" x-text="analysis.exploit_code"></div>
+                                        <button class="btn" @click="downloadExploit()">
+                                            <i class="fas fa-download"></i> Download Exploit
+                                        </button>
+                                    </div>
+                                </template>
+                                <template x-if="!analysis.exploit_code">
+                                    <div style="text-align: center; padding: 2rem">
+                                        <i class="fas fa-robot fa-3x" style="color: var(--text-muted); margin-bottom: 1rem"></i>
+                                        <p>No exploits generated for this binary.</p>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+            </div>
+        </template>
+        
+        <template x-if="currentView === 'marketplace'">
+            <div>
+                <h2 style="margin-bottom: 2rem">Exploit Marketplace</h2>
+                <div class="marketplace-grid">
+                    <template x-for="exploit in exploits" :key="exploit.id">
+                        <div class="exploit-card">
+                            <h3 x-text="exploit.title" style="margin-bottom: 0.5rem"></h3>
+                            <div style="color: var(--text-muted); margin-bottom: 1rem" x-text="exploit.description"></div>
+                            <div style="margin-bottom: 1rem">
+                                <span class="protection-badge protection-enabled">
+                                    <i class="fas fa-shield-alt"></i>
+                                    <span x-text="exploit.type"></span>
+                                </span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center">
+                                <div class="price-tag" x-text="'$' + exploit.price"></div>
+                                <button class="btn" @click="purchaseExploit(exploit.id)">Purchase</button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </template>
+    </div>
+
+    <script>
+        function app() {
+            return {
+                currentView: 'dashboard',
+                dragover: false,
+                activeTab: 'info',
+                stats: {
+                    totalAnalyses: 127,
+                    monthlyLimit: 1000,
+                    vulnerabilitiesFound: 43,
+                    exploitsGenerated: 38,
+                    apiUsage: 756,
+                    apiLimit: 1000,
+                    successRate: 85
+                },
+                analysis: null,
+                exploits: [
+                    {
+                        id: 1,
+                        title: 'Buffer Overflow Exploit',
+                        description: 'Advanced exploit for stack-based buffer overflow in C applications',
+                        type: 'buffer_overflow',
+                        price: 99.99
+                    },
+                    {
+                        id: 2,
+                        title: 'Format String Attack',
+                        description: 'Exploit for format string vulnerabilities in printf functions',
+                        type: 'format_string',
+                        price: 79.99
+                    },
+                    {
+                        id: 3,
+                        title: 'ROP Chain Generator',
+                        description: 'Automated ROP chain generation for bypassing DEP',
+                        type: 'rop_chain',
+                        price: 149.99
+                    }
+                ],
+                
+                handleDrop(e) {
+                    this.dragover = false;
+                    const file = e.dataTransfer.files[0];
+                    this.uploadFile(file);
+                },
+                
+                handleFileSelect(e) {
+                    const file = e.target.files[0];
+                    this.uploadFile(file);
+                },
+                
+                async uploadFile(file) {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    
+                    // Simulate API call
+                    setTimeout(() => {
+                        this.analysis = {
+                            file_info: {
+                                format: 'ELF 64-bit LSB executable',
+                                arch: 'x86-64',
+                                os: 'Linux',
+                                stripped: false
+                            },
+                            protections: {
+                                canary: false,
+                                nx: true,
+                                pic: false,
+                                relro: 'Partial',
+                                fortify: false
+                            },
+                            vulnerabilities: [
+                                {
+                                    type: 'buffer_overflow',
+                                    function: 'strcpy',
+                                    reason: 'No bounds checking - buffer overflow possible'
+                                },
+                                {
+                                    type: 'format_string',
+                                    function: 'printf',
+                                    reason: 'Potentially uncontrolled format string'
+                                }
+                            ],
+                            exploit_code: `#!/usr/bin/env python3
+import struct
+
+payload = b'A' * 64  # Buffer size
+payload += struct.pack('<Q', 0x41414141)  # Return address
+
+with open('exploit', 'wb') as f:
+    f.write(payload)
+    
+print("[*] Exploit generated successfully")`
+                        };
+                    }, 2000);
+                },
+                
+                downloadExploit() {
+                    if (this.analysis && this.analysis.exploit_code) {
+                        const blob = new Blob([this.analysis.exploit_code], { type: 'text/plain' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'exploit.py';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    }
+                },
+                
+                purchaseExploit(id) {
+                    alert(`Redirecting to payment gateway for exploit #${id}`);
+                    // In real implementation, this would redirect to Stripe checkout
+                }
+            }
+        }
+    </script>
+</body>
+</html>
