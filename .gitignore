@@ -1,6 +1,11 @@
+# directories
+__pycache__/
 venv/
 tests/
 challenges/
 
 # files
 .env
+reloadai.db
+core/output.py
+core/utils.py

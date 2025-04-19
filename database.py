@@ -3,14 +3,33 @@ import sqlite3
 import os
 from typing import Optional
 from contextlib import contextmanager
+import re
 
 DATABASE_FILE = os.getenv("RELOADAI_DB", "reloadai.db")
+
+# Whitelist para nomes de tabelas e colunas
+ALLOWED_TABLES = [
+    'users', 'subscriptions', 'analysis_results', 'analysis_logs',
+    'exploit_listings', 'purchases', 'exploit_access', 'api_keys',
+    'rate_limits', 'usage_reports'
+]
+
+ALLOWED_COLUMNS = {
+    'users': ['id', 'email', 'name', 'stripe_customer_id', 'created_at'],
+    'subscriptions': ['user_id', 'stripe_subscription_id', 'plan', 'status', 'created_at', 'updated_at'],
+    'analysis_results': ['id', 'user_id', 'status', 'results', 'error', 'created_at', 'completed_at', 'task_id'],
+    # ... adicionar outras tabelas e colunas
+}
 
 @contextmanager
 def get_db():
     """Get database connection with proper cleanup"""
     conn = sqlite3.connect(DATABASE_FILE)
     conn.row_factory = sqlite3.Row
+    
+    # Enable foreign keys
+    conn.execute("PRAGMA foreign_keys = ON")
+    
     try:
         yield conn
     finally:
@@ -20,9 +39,22 @@ class Database:
     def __init__(self):
         self.conn = sqlite3.connect(DATABASE_FILE)
         self.conn.row_factory = sqlite3.Row
+        self.conn.execute("PRAGMA foreign_keys = ON")
         
+    def _validate_table_name(self, table: str) -> bool:
+        """Valida nome de tabela contra whitelist"""
+        return table in ALLOWED_TABLES
+    
+    def _validate_column_name(self, table: str, column: str) -> bool:
+        """Valida nome de coluna contra whitelist"""
+        return table in ALLOWED_COLUMNS and column in ALLOWED_COLUMNS[table]
+    
     def execute(self, query: str, params: tuple = None):
         """Execute a query with parameters"""
+        # Verifica se a query está usando parâmetros adequadamente
+        if '?' not in query and params:
+            raise ValueError("Query contains parameters but no placeholders")
+        
         cursor = self.conn.cursor()
         if params:
             cursor.execute(query, params)
@@ -70,6 +102,7 @@ def init_db():
                 id TEXT PRIMARY KEY,
                 user_id TEXT NOT NULL,
                 status TEXT NOT NULL,
+                task_id TEXT,
                 results JSON,
                 error TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -163,6 +196,17 @@ def init_db():
             )
         """)
         
+        # Usage reports table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS usage_reports (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id TEXT NOT NULL,
+                report_data JSON,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        """)
+        
         # Create indexes for better query performance
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_analysis_user ON analysis_results(user_id)")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_analysis_status ON analysis_results(status)")
@@ -209,12 +253,13 @@ def seed_test_data():
 def get_user_subscription(user_id: str) -> Optional[dict]:
     """Get user's active subscription"""
     with get_db() as conn:
+        # Usa query parametrizada para prevenir SQL injection
         result = conn.execute("""
             SELECT s.*, u.email
             FROM subscriptions s
             JOIN users u ON s.user_id = u.id
-            WHERE s.user_id = ? AND s.status = 'active'
-        """, (user_id,)).fetchone()
+            WHERE s.user_id = ? AND s.status = ?
+        """, (user_id, 'active')).fetchone()
         
         return dict(result) if result else None
 

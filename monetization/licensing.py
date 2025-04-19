@@ -1,22 +1,35 @@
 # monetization/licensing.py
 import jwt
 import time
+import base64
 import uuid
 from datetime import datetime, timedelta
 from cryptography.fernet import Fernet
 import hashlib
 import json
+import secrets
+from typing import Dict, List
 
 class LicenseManager:
     """Handle software licensing and activation"""
     
     def __init__(self, secret_key: str):
+        # Valida tamanho mínimo da chave
+        if len(secret_key) < 32:
+            raise ValueError("Secret key must be at least 32 characters")
+        
         self.secret_key = secret_key
         self.fernet = Fernet(self._get_fernet_key())
+        
+        # Algoritmo seguro para JWT
+        self.jwt_algorithm = 'HS384'
     
     def _get_fernet_key(self) -> bytes:
         """Generate Fernet key from secret"""
-        return hashlib.sha256(self.secret_key.encode()).digest()[:32]
+        # Usa derivação de chave segura
+        return base64.urlsafe_b64encode(
+        hashlib.sha256(self.secret_key.encode()).digest()[:32]
+    )
     
     def generate_license(self, 
                         user_email: str, 
@@ -24,19 +37,38 @@ class LicenseManager:
                         duration_days: int = 30) -> str:
         """Generate a new license key"""
         
+        # Valida email
+        if not self._is_valid_email(user_email):
+            raise ValueError("Invalid email format")
+        
+        # Valida plano
+        if plan not in ["basic", "pro", "enterprise"]:
+            raise ValueError(f"Invalid plan: {plan}")
+        
+        issued_at = datetime.utcnow()
+        expires_at = issued_at + timedelta(days=duration_days)
+        
         license_data = {
             'license_id': str(uuid.uuid4()),
             'user_email': user_email,
             'plan': plan,
-            'issued_at': datetime.utcnow().isoformat(),
-            'expires_at': (datetime.utcnow() + timedelta(days=duration_days)).isoformat(),
+            'issued_at': issued_at.isoformat(),
+            'expires_at': expires_at.isoformat(),
             'features': self._get_plan_features(plan),
             'max_analyses': self._get_max_analyses(plan),
-            'api_rate_limit': self._get_api_rate_limit(plan)
+            'api_rate_limit': self._get_api_rate_limit(plan),
+            'iat': int(issued_at.timestamp()),  # Issued at timestamp
+            'exp': int(expires_at.timestamp()),  # Expiration timestamp
+            'jti': str(uuid.uuid4()),  # JWT ID único
+            'kid': secrets.token_hex(16)  # Key ID para rotação
         }
         
-        # Encode with JWT
-        token = jwt.encode(license_data, self.secret_key, algorithm='HS256')
+        # Encode with JWT usando algoritmo seguro
+        token = jwt.encode(
+            license_data, 
+            self.secret_key, 
+            algorithm=self.jwt_algorithm
+        )
         
         # Encrypt for extra security
         encrypted = self.fernet.encrypt(token.encode())
@@ -50,17 +82,46 @@ class LicenseManager:
             decrypted = self.fernet.decrypt(license_key.encode())
             
             # Decode JWT
-            license_data = jwt.decode(decrypted, self.secret_key, algorithms=['HS256'])
+            license_data = jwt.decode(
+                decrypted, 
+                self.secret_key, 
+                algorithms=[self.jwt_algorithm],
+                options={
+                    'verify_exp': True,  # Verifica expiração
+                    'verify_iat': True,  # Verifica issued at
+                    'require': ['exp', 'iat', 'jti']  # Campos obrigatórios
+                }
+            )
             
-            # Check expiration
+            # Validações adicionais
             expires_at = datetime.fromisoformat(license_data['expires_at'])
             if datetime.utcnow() > expires_at:
                 raise ValueError("License expired")
             
+            # Verifica se a licença está na blacklist (revogada)
+            if self._is_license_revoked(license_data['license_id']):
+                raise ValueError("License has been revoked")
+            
             return license_data
             
+        except jwt.ExpiredSignatureError:
+            raise ValueError("License expired")
+        except jwt.InvalidTokenError:
+            raise ValueError("Invalid license format")
         except Exception as e:
             raise ValueError(f"Invalid license: {str(e)}")
+    
+    def _is_valid_email(self, email: str) -> bool:
+        """Validate email format"""
+        import re
+        pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        return bool(re.match(pattern, email))
+    
+    def _is_license_revoked(self, license_id: str) -> bool:
+        """Check if license has been revoked"""
+        # Em produção, verificar contra banco de dados de licenças revogadas
+        # Por enquanto retorna False
+        return False
     
     def _get_plan_features(self, plan: str) -> List[str]:
         """Get features for each plan"""
@@ -88,7 +149,8 @@ class LicenseManager:
                 'dynamic_analysis',
                 'binary_diffing',
                 'custom_reports',
-                'priority_support'
+                'priority_support',
+                'exploit_marketplace'
             ]
         }
         return features.get(plan, features['basic'])
@@ -110,76 +172,3 @@ class LicenseManager:
             'enterprise': 10000
         }
         return limits.get(plan, 100)
-
-
-# Example usage in main application:
-class BillingSystem:
-    """Integration with payment systems and subscription management"""
-    
-    def __init__(self, stripe_api_key: str, db_connection):
-        self.stripe = stripe
-        self.stripe.api_key = stripe_api_key
-        self.db = db_connection
-    
-    def create_subscription(self, user_id: str, plan: str) -> str:
-        """Create a new subscription for user"""
-        # Get or create customer
-        customer = self._get_or_create_customer(user_id)
-        
-        # Create subscription
-        price_id = self._get_price_id(plan)
-        subscription = self.stripe.Subscription.create(
-            customer=customer.id,
-            items=[{'price': price_id}],
-            metadata={'user_id': user_id},
-            trial_period_days=14  # Free trial
-        )
-        
-        # Update database
-        self.db.execute("""
-            INSERT OR REPLACE INTO subscriptions 
-            (user_id, stripe_subscription_id, plan, status, created_at)
-            VALUES (?, ?, ?, ?, ?)
-        """, (user_id, subscription.id, plan, subscription.status, datetime.utcnow()))
-        
-        return subscription.id
-    
-    def _get_or_create_customer(self, user_id: str) -> stripe.Customer:
-        """Get existing customer or create new one"""
-        # Check if customer exists
-        result = self.db.execute(
-            "SELECT stripe_customer_id FROM users WHERE id = ?", 
-            (user_id,)
-        ).fetchone()
-        
-        if result and result['stripe_customer_id']:
-            return self.stripe.Customer.retrieve(result['stripe_customer_id'])
-        
-        # Create new customer
-        user_data = self.db.execute(
-            "SELECT email, name FROM users WHERE id = ?",
-            (user_id,)
-        ).fetchone()
-        
-        customer = self.stripe.Customer.create(
-            email=user_data['email'],
-            name=user_data['name'],
-            metadata={'user_id': user_id}
-        )
-        
-        # Update database
-        self.db.execute(
-            "UPDATE users SET stripe_customer_id = ? WHERE id = ?",
-            (customer.id, user_id)
-        )
-        
-        return customer
-    
-    def _get_price_id(self, plan: str) -> str:
-        """Get Stripe price ID for plan"""
-        price_map = {
-            'basic': 'price_basic_monthly',
-            'pro': 'price_pro_monthly',
-            'enterprise': 'price_enterprise_monthly'
-        }
-        return price_map.get(plan, price_map['basic'])
