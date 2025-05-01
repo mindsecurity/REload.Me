@@ -482,7 +482,8 @@
                                     reason: 'Potentially uncontrolled format string'
                                 }
                             ],
-                            exploit_code: `#!/usr/bin/env python3
+                            exploit_code: ```python
+#!/usr/bin/env python3
 import struct
 
 payload = b'A' * 64  # Buffer size
@@ -491,7 +492,8 @@ payload += struct.pack('<Q', 0x41414141)  # Return address
 with open('exploit', 'wb') as f:
     f.write(payload)
     
-print("[*] Exploit generated successfully")`
+print("[*] Exploit generated successfully")
+```
                         };
                     }, 2000);
                 },

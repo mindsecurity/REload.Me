@@ -1,3 +1,10 @@
+from celery import Celery
+from celery import uuid  
+from celery import states
+from celery.result import AsyncResult
+from celery import celery_app  
+process_analysis = celery_app.tasks['process_analysis']
+
 from fastapi import FastAPI, File, UploadFile, Depends, HTTPException, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
