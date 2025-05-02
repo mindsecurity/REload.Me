@@ -1,0 +1,60 @@
+## Relatório Técnico: Análise de Binário
+
+**Nome do Arquivo**: {{ meta.name }}  
+**SHA-256**: {{ meta.sha256 }}  
+**Tamanho**: {{ meta.size / 1024 }} KB  
+**MIME**: {{ meta.mime }}  
+**Extensão**: {{ meta.extension }}  
+
+---
+
+### Fingerprints
+- ssdeep: {{ fp.ssdeep or 'n/a' }}
+- imphash: {{ fp.imphash or 'n/a' }}
+- tlsh: {{ fp.tlsh or 'n/a' }}
+
+---
+
+### Proteções Ativas
+```bash
+{{ protecoes }}
+```
+
+---
+
+### Funções Identificadas
+Total: {{ functions|length }}
+
+{% for f in functions[:10] %}
+- {{ f.name }} @ {{ f.offset|hex }} ({{ f.size }} bytes)
+{% endfor %}
+
+---
+
+### Disassembly da main()
+```asm
+{{ main_disasm }}
+```
+
+---
+
+### Comentários da IA
+{{ main_ia }}
+
+---
+
+### Gadgets ROP (Top 5)
+{% for g in rop[:5] %}
+- {{ g }}
+{% endfor %}
+
+---
+
+### Grafo de Controle (DOT)
+```dot
+{{ cfg_dot }}
+```
+
+---
+
+_Gerado por REload.Me_

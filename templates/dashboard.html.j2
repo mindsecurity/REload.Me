@@ -1,0 +1,68 @@
+<!-- templates/dashboard.html.j2 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>REload.Me - Análise Interativa</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+</head>
+<body>
+<section class="section">
+    <div class="container">
+        <h1 class="title has-text-centered">REload.Me Dashboard</h1>
+        <p class="subtitle has-text-centered">Resumo da Análise de Binário</p>
+
+        <div class="columns">
+            <div class="column">
+                <div class="box">
+                    <h2 class="title is-5">Metadados</h2>
+                    <ul>
+                        <li><strong>Arquivo:</strong> {{ name }}</li>
+                        <li><strong>SHA-256:</strong> {{ sha256 }}</li>
+                        <li><strong>Tamanho:</strong> {{ size|round(2) }} bytes</li>
+                        <li><strong>MIME:</strong> {{ mime }}</li>
+                        <li><strong>Proteções:</strong> {{ protections }}</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="column">
+                <div class="box">
+                    <h2 class="title is-5">Heurísticas</h2>
+                    <ul>
+                        <li><strong>Formato:</strong> {{ format }}</li>
+                        <li><strong>Packer:</strong> {{ packer or 'n/a' }}</li>
+                        <li><strong>imphash:</strong> {{ imphash or 'n/a' }}</li>
+                        <li><strong>ssdeep:</strong> {{ ssdeep or 'n/a' }}</li>
+                        <li><strong>tlsh:</strong> {{ tlsh or 'n/a' }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="box">
+            <h2 class="title is-5">Função Main (Desmontagem)</h2>
+            <pre>{{ main_disasm }}</pre>
+        </div>
+
+        <div class="box">
+            <h2 class="title is-5">Explicação da Função</h2>
+            <div class="content">
+                {{ explanation | safe }}
+            </div>
+        </div>
+
+        <div class="box">
+            <h2 class="title is-5">CFG Interativo</h2>
+            <div id="cfg3d" style="height:600px;"></div>
+            <script>
+                const graphData = {{ plotly_json | safe }};
+                Plotly.newPlot('cfg3d', graphData.data, graphData.layout);
+            </script>
+        </div>
+    </div>
+</section>
+</body>
+</html>
