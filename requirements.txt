@@ -1,73 +1,72 @@
-# Radare2 integration & core analysis
-r2pipe>=0.10.4
+# Core analysis & radare2 integration
+r2pipe
 
-# CLI UI
-rich>=13.3.2
+# Rich terminal UI
+rich
 
-# OpenAI
-openai>=0.27.0
+# OpenAI client
+openai
 
-# Env vars
-python-dotenv>=1.0.0
+# Environment variable loader
+python-dotenv
 
-# Web & API
-fastapi>=0.95.2
-uvicorn[standard]>=0.22.0
+# Web framework & API
+fastapi
+uvicorn[standard]
 
 # Task queue
-celery[redis]>=5.4.0
-redis>=5.8.0
+celery[redis]
+
+# Redis client
+redis
 
 # File type detection
-python-magic>=0.4.27
-python-magic-bin>=0.4.14 ; platform_system == "Windows"
+python-magic
 
-# Stripe & AWS
-stripe>=11.0.0
-boto3>=1.28.0
+# Stripe integration
+stripe
 
-# PDF reports & templating
-WeasyPrint>=58.0
-Jinja2>=3.1.2
+# AWS SDK for S3 uploads
+boto3
+
+# PDF generation and templating
+WeasyPrint
+Jinja2
 
 # Dynamic analysis & emulation
-docker>=6.1.3
-unicorn>=2.0.3
-capstone>=5.0.0
+docker
+unicorn
+capstone
 
-# Graphs & viz
-networkx>=3.1
-plotly>=5.18.0
-numpy>=1.25.0
-matplotlib>=3.8.0
+# Graph analysis & visualization
+networkx
+plotly
+numpy
+matplotlib
 
 # Binary diffing & fingerprints
-pefile>=2024.3.31
-lief>=0.13.1
-# ssdeep optional (requires system libfuzzy)
-ssdeep>=3.4 ; extra == "ssdeep"
-tlsh>=4.4.0
-flare-capa>=1.13.0
+pefile
+ssdeep
+tlsh
+lief
 
 # CTF solving
-angr>=9.3.12
-z3-solver>=4.11.2.0
-requests>=2.31.0
-beautifulsoup4>=4.12.2
-Pillow>=10.0.0
+angr
+z3-solver
+requests
+beautifulsoup4
+Pillow
 
 # Frida tracing
-frida>=16.1.27
+frida
 
-# Crypto & malware gen
-cryptography>=41.0.2
+# Cryptography for malware generator
+cryptography
 
-# Utils
-python-dateutil>=2.8.2
+# Utilities
+python-dateutil
 
-# Dev / lint
-flake8>=6.0.0
-black>=24.1.0
-isort>=6.14.0
-pytest>=7.4.0
-pytest-cov>=4.1.0
+# Development & linting (optional)
+flake8
+black
+isort
