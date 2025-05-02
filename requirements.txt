@@ -1,51 +1,72 @@
-# requirements.txt
-# Core dependencies
-r2pipe==1.8.0
-rich==13.7.0
-fpdf==1.7.2
-openai==1.12.0
+# Core analysis & radare2 integration
+r2pipe
 
-# API and web
-fastapi==0.109.2
-uvicorn==0.27.1
-python-multipart==0.0.18
-pydantic==2.6.1
-stripe==7.12.0
+# Rich terminal UI
+rich
 
-# Database and caching
-# sqlite3 - já vem com Python, não precisa instalar
-redis==5.0.1
-python-dotenv==1.0.1
-cryptography==44.0.1
-pyjwt==2.8.0
-python-magic==0.4.27  # Corrigido de magic para python-magic
+# OpenAI client
+openai
 
-# Analytics and visualization
-pandas==2.2.0
-matplotlib==3.8.2
-seaborn==0.13.2
+# Environment variable loader
+python-dotenv
 
-# Testing and development
-pytest==8.0.0
-pytest-asyncio==0.23.5
-pytest-cov==4.1.0
-black==24.3.0
-flake8==7.0.0
-mypy==1.8.0
+# Web framework & API
+fastapi
+uvicorn[standard]
 
-# Optional dependencies for advanced features
-angr==9.2.87  # For symbolic execution
-capstone==5.0.1  # For disassembly
-keystone-engine==0.9.2  # For assembly
-unicorn==2.0.1.post1  # For emulation
-lief==0.15.0  # For binary manipulation
+# Task queue
+celery[redis]
 
-# Cloud and integration
-boto3==1.34.37  # For AWS integration
-requests==2.32.2
-aiohttp==3.11.0b0
-websockets==12.0
+# Redis client
+redis
 
-# Security
-pycryptodome==3.20.0
-argon2-cffi==23.1.0
+# File type detection
+python-magic
+
+# Stripe integration
+stripe
+
+# AWS SDK for S3 uploads
+boto3
+
+# PDF generation and templating
+WeasyPrint
+Jinja2
+
+# Dynamic analysis & emulation
+docker
+unicorn
+capstone
+
+# Graph analysis & visualization
+networkx
+plotly
+numpy
+matplotlib
+
+# Binary diffing & fingerprints
+pefile
+ssdeep
+tlsh
+lief
+
+# CTF solving
+angr
+z3-solver
+requests
+beautifulsoup4
+Pillow
+
+# Frida tracing
+frida
+
+# Cryptography for malware generator
+cryptography
+
+# Utilities
+python-dateutil
+
+# Development & linting (optional)
+flake8
+black
+isort

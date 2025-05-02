@@ -1,11 +1,35 @@
-# directories
+# Diretórios ocultos / editor
+.vscode/
+.idea/
 __pycache__/
-venv/
-tests/
-challenges/
+*.pyc
 
-# files
+# Ambientes virtuais
+.venv/
+venv/
+
+# Build e dist
+build/
+dist/
+*.egg-info/
+
+# Data runtime
+data/exploits/
+data/uploads/
+data/reports/
+
+# Logs
+*.log
+
+# Arquivos de cache de ferramentas
+.cache/
+coverage/
+.tox/
+.mypy_cache/
+.pytest_cache/
+*.prof
+
+# extra
 .env
 reloadai.db
-core/output.py
-core/utils.py
+challenges/

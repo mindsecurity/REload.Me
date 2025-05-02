@@ -1,60 +1,11 @@
-# docker-compose.yml
-version: '3.8'
+version: "3.9"
 
 services:
-  api:
+  reloadai:
     build: .
-    ports:
-      - "8000:8000"
+    volumes:
+      - .:/app
     environment:
-      - DATABASE_URL=sqlite:///app/data/reloadai.db
-      - REDIS_URL=redis://redis:6379/0
-    volumes:
-      - uploads:/app/uploads
-      - data:/app/data
-    depends_on:
-      - redis
-    restart: unless-stopped
-    networks:
-      - reloadai-network
-
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    restart: unless-stopped
-    networks:
-      - reloadai-network
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - "3000:80"
-    depends_on:
-      - api
-    restart: unless-stopped
-    networks:
-      - reloadai-network
-
-  sandbox:
-    build:
-      context: ./sandbox
-      dockerfile: Dockerfile
-    privileged: true
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    networks:
-      - reloadai-network
-
-volumes:
-  uploads:
-  data:
-  redis_data:
-
-networks:
-  reloadai-network:
-    driver: bridge
+      - OPENAI_MODEL=gpt-4o
+    working_dir: /app
+    command: python3 -m reloadai.cli.reloadai_cli

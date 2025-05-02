@@ -1,0 +1,103 @@
+# 📊 Relatório Executivo – REload.Me
+
+**Arquivo:** {{ meta.name }}  
+**Tamanho:** {{ meta.size | round(1) }} KB  
+**SHA-256:** {{ meta.sha256 }}  
+**Tipo MIME:** {{ meta.mime }}  
+**Formato:** {{ meta.format }}  
+**Proteções:** {{ protecoes | join(', ') if protecoes else 'Nenhuma detectada' }}
+
+---
+
+## 📌 Sumário
+
+- [x] Fingerprints (ssdeep, imphash, tlsh)  
+- [x] Detecção de empacotador: **{{ packer or 'Não identificado' }}**  
+- [x] Strings sensíveis extraídas  
+- [x] Funções críticas analisadas  
+- [x] CFG visualizado (3D opcional)  
+- [x] Exploits gerados automaticamente (se aplicável)  
+
+---
+
+## 🔐 Proteções Ativas
+
+```text
+{{ checksec }}
+```
+
+## 🧵 Strings Relevantes
+
+```text
+{% for s in strings %}
+{{ s }}
+{% endfor %}
+```
+
+## 💣 Funções Críticas
+
+{% for func in funcoes %}
+### {{ func.name }} @ {{ func.addr }}
+```asm
+{{ func.disasm }}
+```
+
+🧠 **Análise:**
+{{ func.explicacao }}
+{% endfor %}
+
+---
+
+**Gerado por:** REload.Me  
+**Versão:** {{ version }}
+
+---
+
+# 🧬 Relatório Técnico – Engenharia Reversa
+
+**Arquivo:** {{ meta.name }}  
+**Hash:** {{ meta.sha256 }}  
+**Tipo:** {{ meta.mime }}  
+**Tamanho:** {{ meta.size }} bytes  
+**Interpreter:** {{ meta.interp or 'n/a' }}
+
+---
+
+## 🎯 Fingerprints
+
+| Tipo     | Hash                              |
+|----------|-----------------------------------|
+| SHA-256  | {{ meta.sha256 }}                |
+| ssdeep   | {{ fingerprints.ssdeep or 'n/a' }} |
+| imphash  | {{ fingerprints.imphash or 'n/a' }} |
+| tlsh     | {{ fingerprints.tlsh or 'n/a' }}   |
+
+---
+
+## 🧠 Funções Detectadas
+
+{% for f in funcoes %}
+### {{ f.name }} ({{ f.size }} bytes)
+
+- Offset: `0x{{ '%x' % f.addr }}`  
+- CC: {{ f.cc }}
+
+```asm
+{{ f.disasm }}
+```
+
+💡 **Análise automática:**
+{{ f.explicacao }}
+{% endfor %}
+
+---
+
+## 📊 CFG
+
+- Total de blocos: {{ cfg.nodes }}  
+- Ramificações: {{ cfg.branch_count }}  
+- Complexidade cicl.: {{ cfg.cyclomatic_complexity }}
+
+---
+
+**Relatório gerado com REload.Me – IA para engenharia reversa**
