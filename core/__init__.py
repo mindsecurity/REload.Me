@@ -10,10 +10,10 @@ try:
 except ImportError:
     __version__ = "0.0.0"
 
-from .analyzer import BinaryAnalyzer, BinaryAnalysisError, SecurityError
-from .dynamic import DynamicAnalyzer
-from .exploit_gen import ExploitGenerator
-from .bof_solver import BoFSolver
+from src.modules.static_analysis.static_analyzer import BinaryAnalyzer, BinaryAnalysisError, SecurityError
+from src.modules.dynamic_analysis.dynamic_analyzer import DynamicAnalyzer
+from src.modules.exploit_development.exploit_generator import ExploitGenerator
+from src.modules.exploit_development.bof_solver import BoFSolver
 from .fingerprints import ssdeep_hash, imphash
 from .packers import detect_packer
 from .cfg_visualizer import CFGVisualizer

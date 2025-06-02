@@ -14,9 +14,9 @@ from rich.progress import track
 from rich.live import Live
 from rich.markdown import Markdown
 
-from core.analyzer import BinaryAnalyzer
-from core.exploit_gen import ExploitGenerator
-from core.dynamic_analyzer import DynamicAnalyzer
+from src.modules.static_analysis.static_analyzer import BinaryAnalyzer
+from src.modules.exploit_development.exploit_generator import ExploitGenerator
+from src.modules.dynamic_analysis.dynamic_analyzer import DynamicAnalyzer
 from core.binary_differ import BinaryDiffer
 from core.ctf_solver import CTFSolver
 from core.cfg_visualizer import CFGVisualizer
