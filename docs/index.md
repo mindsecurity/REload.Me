@@ -1,31 +1,30 @@
-# REload.Me – Engenharia Reversa com IA
+# Bem-vindo à Documentação do REload.Me
 
-**REload.Me** é uma plataforma automatizada de engenharia reversa assistida por inteligência artificial. Ela combina análise estática, dinâmica, visualizações avançadas e geração automática de exploits com uma interface poderosa para CTFs, Red Team e pesquisa.
+**REload.Me é uma plataforma de engenharia reversa colaborativa, potencializada por Inteligência Artificial, projetada para capacitar estudantes, pesquisadores e profissionais de segurança a desvendar as complexidades de binários de forma eficiente e educativa.**
+
+Esta documentação serve como um hub central para entender os diferentes aspectos do projeto REload.Me.
+
+## 🚀 Comece Aqui
+
+*   **[README Principal](../README.md):** Para uma visão geral completa do projeto, funcionalidades atuais, como contribuir e informações de instalação.
+*   **[Nosso Gibook Educacional](./educational_content/SUMMARY.md):** O recurso definitivo para aprender engenharia reversa com o REload.Me. Contém tutoriais, guias conceituais e exemplos práticos. *(Nota: Este link aponta para o `SUMMARY.md` que serve como índice para o Gibook. Para visualização local com `mdbook`, navegue para `docs/educational_content/` e execute `mdbook serve`)*.
+*   **[Roadmap do Projeto](../ROADMAP.md):** Veja nossos planos e o que está por vir nas próximas versões do REload.Me.
+
+## 🎯 Sobre o Projeto
+
+O REload.Me visa transformar a maneira como a engenharia reversa é aprendida e praticada, através de:
+
+*   **Múltiplos Modos de Interface:** Adaptados para diferentes níveis de conhecimento (Iniciante, Intermediário, Avançado).
+*   **Assistência de IA de Ponta:** Para explicar código, sugerir vulnerabilidades e acelerar análises.
+*   **Foco em Educação:** Com o Modo Guiado e um Gibook interativo.
+*   **Comunidade:** Planos para funcionalidades colaborativas e de reconhecimento.
+
+## 🛠️ Visão Geral da Arquitetura (Como Funciona)
+
+Para entender melhor os componentes internos e o fluxo de trabalho do REload.Me, consulte:
+
+*   **[Como o REload.Me Funciona](./how_it_works.md):** Uma descrição do pipeline de análise e da interação dos módulos.
+*   **[Visão Geral da Arquitetura (para Desenvolvedores)](./developer/architecture_overview.md):** Detalhes sobre a estrutura modular do código e os planos para plugins.
 
 ---
-
-## ✨ Funcionalidades Principais
-
-- 🔍 Análise Estática com Radare2
-- 🧠 Geração de Exploits via GPT + Templates
-- 🧵 Detecção de Strings Sensíveis e Proteções
-- 📊 Visualização Interativa 3D do Fluxo de Controle
-- ⚙️ Resolução Automática de BoFs 32/64 bits
-- 🔐 Fingerprints (ssdeep, imphash, tlsh)
-- 📄 Relatórios Técnicos e Executivos (Jinja2 + WeasyPrint)
-- 🧪 Integração com testes unitários e sandboxing
-
----
-
-## 🚀 Como Usar
-
-```bash
-# Instala dependências e prepara ambiente
-./install.sh
-
-# Análise de binário simples
-python -m reloadai.cli.reloadai_cli -f ./desafios/chall
-
-# Força análise profunda (gasta mais RAM/CPU)
-python -m reloadai.cli.reloadai_cli -f ./desafios/chall --deep
-```
+*Esta documentação está em constante evolução, acompanhando o desenvolvimento do REload.Me.*

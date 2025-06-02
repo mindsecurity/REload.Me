@@ -1,6 +1,6 @@
 import os
 import docker
-from utils.logging import get_logger
+from src.common.logging import get_logger
 
 log = get_logger(__name__)
 client = docker.from_env()

@@ -11,9 +11,9 @@ def cli_main():
     return main()
 
 # Core engines
-from .core.analyzer import BinaryAnalyzer
-from .core.dynamic import DynamicAnalyzer
-from .core.exploit_gen import ExploitGenerator
+from src.modules.static_analysis.static_analyzer import BinaryAnalyzer
+from src.modules.dynamic_analysis.dynamic_analyzer import DynamicAnalyzer
+from src.modules.exploit_development.exploit_generator import ExploitGenerator
 from .core.fingerprints import ssdeep_hash, imphash
 from .core.packers import detect as detect_packer
 from .core.cfg_visualizer import CFGVisualizer

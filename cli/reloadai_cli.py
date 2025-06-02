@@ -14,14 +14,14 @@ from rich.markdown import Markdown
 
 from openai import OpenAI
 
-from utils.sanitizer import BinarySanitizer
-from utils.interpreter import get_interp
+from src.common.sanitizer import BinarySanitizer
+from src.common.interpreter import get_interp
 from core.fingerprints import ssdeep_hash, imphash, tlsh_hash, capa_features
 from core.packers import detect_packer
-from core.analyzer import BinaryAnalyzer
-from core.dynamic import DynamicAnalyzer
-from core.exploit_gen import ExploitGenerator
-from core.bof_solver import BOFSolver
+from src.modules.static_analysis.static_analyzer import BinaryAnalyzer
+from src.modules.dynamic_analysis.dynamic_analyzer import DynamicAnalyzer
+from src.modules.exploit_development.exploit_generator import ExploitGenerator
+from src.modules.exploit_development.bof_solver import BOFSolver
 from core.cfg_visualizer import CFGVisualizer
 
 console = Console()
