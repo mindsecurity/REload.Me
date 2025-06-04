@@ -109,6 +109,20 @@ reloadme ai explain-function ./meu_binario main
 ### API
 A API REST permitirá integração com scripts e ferramentas externas, com documentação Swagger.
 
+### Ambiente de Desenvolvimento
+Para testar novas funcionalidades ou contribuir com o projeto, é possível rodar o REload.Me em modo de desenvolvimento. Crie um ambiente virtual, instale as dependências extras e suba os serviços via Docker:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -e .[dev]
+pre-commit install
+cp .env.example .env  # configure as chaves necessárias
+docker-compose up -d
+```
+
+Depois disso, execute `pytest -q` para validar suas alterações.
+
 ## 🔒 Segurança e Ética
 
 *   **Ambientes de Análise Isolados (Sandboxed)**.
