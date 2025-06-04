@@ -1,9 +1,11 @@
 from celery import Celery
-from celery import uuid  
+from celery import uuid
 from celery import states
 from celery.result import AsyncResult
-from celery import celery_app  
-process_analysis = celery_app.tasks['process_analysis']
+
+# Minimal Celery application for background tasks
+celery_app = Celery("reloadai")
+process_analysis = celery_app.signature("process_analysis")
 
 from fastapi import FastAPI, File, UploadFile, Depends, HTTPException, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
