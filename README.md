@@ -143,6 +143,11 @@ Junte-se à nossa comunidade para discussões, suporte e novidades (links a sere
 *   **GitHub Issues:** Para reportar bugs e sugerir funcionalidades.
 *   **Hall da Fama e Badges:** Reconhecimento para membros ativos!
 
+## Licença
+
+Este projeto é disponibilizado sob a licença MIT. Consulte o arquivo
+[LICENSE](LICENSE) para mais detalhes.
+
 ---
 
 *REload.Me - Desvende. Aprenda. Colabore.*
