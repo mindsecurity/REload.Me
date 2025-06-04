@@ -65,10 +65,11 @@ class DynamicAnalyzer:
             start_time = time.time()
             try:
                 while time.time() - start_time < timeout:
-                    if container.status == 'exited':
+                    container.reload()  # refresh container status
+                    if container.status in ("exited", "dead"):
                         break
                     time.sleep(0.1)
-            except:
+            except Exception:
                 pass
             
             # Collect results
