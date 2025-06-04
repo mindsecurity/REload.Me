@@ -13,8 +13,8 @@ from rich.markdown import Markdown
 from rich import box
 from openai import OpenAI
 
-from utils.sanitizer import BinarySanitizer
-from utils.interpreter import get_interp
+from src.common.sanitizer import BinarySanitizer
+from src.common.interpreter import get_interp
 
 console = Console()
 
