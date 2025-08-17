@@ -131,15 +131,6 @@ Depois disso, execute `pytest -q` para validar suas alterações.
 
 Sua contribuição é fundamental! Veja nosso `CONTRIBUTING.md` (a ser criado/atualizado) e os templates de Issue/PR em `.github/`. Buscamos contribuições no código, documentação (Gibook), resolução de bugs e novas ideias.
 
-## 🌟 Comunidade e Suporte
-
-Junte-se à nossa comunidade para discussões, suporte e novidades (links a serem definidos):
-
-*   **Gibook REload.Me:** Nossa principal fonte de documentação e aprendizado.
-*   **Fórum/Discord (Futuro):** Para discussões e suporte.
-*   **GitHub Issues:** Para reportar bugs e sugerir funcionalidades.
-*   **Hall da Fama e Badges:** Reconhecimento para membros ativos!
-
 ## Licença
 
 Este projeto é disponibilizado sob a licença MIT. Consulte o arquivo
