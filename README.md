@@ -70,9 +70,6 @@ Este novo roadmap foca na implementação da arquitetura modular, no desenvolvim
 *   **Para Pesquisadores Sênior e Times (Clara):** O **Modo Terminal Raw com AI Assist** e a **API** fornecem controle granular e programático para análises complexas, desenvolvimento de exploits avançados e integração com fluxos de trabalho customizados, além da flexibilidade futura com Ollama.
 *   **Para a Comunidade de Cibersegurança:** Um ecossistema que visa o aprendizado colaborativo, o compartilhamento ético de conhecimento (Repositório de Exploits, Gibook) e o avanço da prática de engenharia reversa.
 
-## Planos de Acesso (Monetização Ética)
-O REload.Me oferecerá diferentes níveis de acesso, incluindo um plano **"Learner" gratuito** robusto para estudantes, um plano **"Analyst"** acessível para praticantes e jogadores de CTF, e um plano **"Researcher"** para profissionais e times com necessidades avançadas. Detalhes completos serão disponibilizados em nosso site e documentação. Nosso objetivo é equilibrar o acesso educacional com a sustentabilidade do projeto.
-
 ## 🏁 Instalação
 
 *(As instruções de instalação serão atualizadas conforme o projeto evolui para v0.3 e além. As informações abaixo são conceituais para a estrutura atual do repositório.)*
@@ -152,4 +149,4 @@ Este projeto é disponibilizado sob a licença MIT. Consulte o arquivo
 
 *REload.Me - Desvende. Aprenda. Colabore.*
 
-Para mais informações sobre a iniciativa ou parcerias: [www.mindsecurity.org](https://www.mindsecurity.org) (Se este for o site da organização mantenedora)
+Para mais informações sobre a iniciativa ou parcerias: [www.mindsecurity.org](https://www.mindsecurity.org) 
