@@ -2,6 +2,7 @@ import r2pipe
 import json
 import os
 import re
+import subprocess
 from typing import Dict, List, Optional, Tuple
 from pathlib import Path
 import openai
@@ -39,11 +40,16 @@ class BinaryAnalyzer:
     def __init__(self, binary_path: str, openai_key: str):
         self.binary_path = binary_path
         self.filename = Path(binary_path).name
+        self.analysis_tool = "radare2"
         try:
             self.r2 = r2pipe.open(binary_path)
         except Exception as e:
             log_message(f"Failed to open r2pipe for {binary_path}: {e}")
-            raise BinaryAnalysisError(f"r2pipe open failed: {e}")
+            self.r2 = None
+            self.analysis_tool = "ghidra"
+            self._init_ghidra()
+            if self.r2 is None:
+                raise BinaryAnalysisError(f"r2pipe open failed: {e}")
 
         if openai_key:
             openai.api_key = openai_key
@@ -64,6 +70,15 @@ class BinaryAnalyzer:
             'learning_notes': []
         }
         # self.log = log_message # Assigning the placeholder logger
+
+    def _init_ghidra(self) -> None:
+        """Placeholder for initializing a Ghidra fallback."""
+        ghidra_home = os.getenv("GHIDRA_HOME")
+        if not ghidra_home or not Path(ghidra_home).exists():
+            log_message("Ghidra not found. Set GHIDRA_HOME to enable fallback analysis.")
+            return
+        # Fallback implementation would spawn Ghidra headless analysis here.
+        log_message("Ghidra integration is not yet implemented.")
 
     def close(self):
         """Closes the r2pipe connection."""
@@ -251,8 +266,37 @@ class BinaryAnalyzer:
         return insights
 
     def generate_learning_notes(self) -> List[Dict]:
-        notes = []
-        # ... (add learning notes generation as in the original class, using self.results) ...
+        notes: List[Dict] = []
+        fi = self.results.get('file_info', {})
+        if fi:
+            notes.append({
+                'topic': 'Architecture',
+                'note': f"Binary '{fi.get('name')}' targets {fi.get('arch')}-{fi.get('bits')} which affects calling conventions and gadget availability."
+            })
+
+        cs = self.results.get('checksec', {})
+        explanations = {
+            'NX enabled': 'Non-executable stack makes shellcode injection harder.',
+            'NX disabled': 'Executable stack allows direct shellcode execution.',
+            'PIE enabled': 'Addresses are randomized each run; leaks are usually required.',
+            'PIE disabled': 'Fixed addresses simplify ROP chains.',
+            'Stack canary found': 'Canaries detect simple stack overflows.',
+            'No stack canary': 'Lack of canaries means classic BoF attacks may succeed.',
+            'Full RELRO': 'GOT is read-only; overwriting entries is difficult.',
+            'Partial RELRO': 'Only part of GOT is protected.',
+            'No RELRO': 'GOT overwrites are viable attack vectors.'
+        }
+        for feature, value in cs.items():
+            explanation = explanations.get(value)
+            if explanation:
+                notes.append({'topic': f'security:{feature}', 'note': explanation})
+
+        for s in self.results.get('strings', []):
+            notes.append({
+                'topic': 'string',
+                'note': f"Suspicious string '{s.get('string')}' matches pattern '{s.get('pattern')}' and may reveal credentials, commands or flags."
+            })
+
         self.results['learning_notes'] = notes
         return notes
     
