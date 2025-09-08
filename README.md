@@ -1,71 +1,151 @@
-# ReloadMe
+# REload.Me
 
-[![Python](https://img.shields.io/badge/python-%3E%3D3.9-blue)](https://www.python.org/)
-[![Rich](https://img.shields.io/badge/terminal-rich%20UI-7957d5)](https://github.com/Textualize/rich)
-[![Typer](https://img.shields.io/badge/CLI-typer-6cc24a)](https://github.com/tiangolo/typer)
+[![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20Windows%20%7C%20macOS-lightgrey.svg)](https://github.com/yourusername/REload.Me)
+[![Build](https://img.shields.io/badge/Build-Stable-brightgreen.svg)](https://github.com/yourusername/REload.Me)
 
-REload.Me é uma CLI em Python para análise estática inicial de binários (PE e ELF), com coleta via r2pipe, apresentação com rich e mentoria opcional por LLM.
+Static binary analysis framework with integrated Control Flow Graph visualization and AI-assisted reverse engineering guidance.
 
-- Comando principal: `reloadme analyse|analyze <caminho_para_o_binario>`
-- Objetivo: preparar terreno, organizar dados e oferecer insights para análise dinâmica.
+## Overview
 
-## Recursos (V1)
+REload.Me provides comprehensive static analysis capabilities for PE and ELF binaries, featuring real-time CFG generation, security assessment, and intelligent analysis recommendations. Built for security researchers, malware analysts, and reverse engineers.
 
-- Informações do binário (iI/iIj): bintype, class, machine, bits, endian, os, subsystem, static, stripped, PIC, RELRO, rpath, runpath, interpreter.
-- Checksec (ij → bin.sec): Canary, NX, PIE, ASLR, RELRO, Fortify.
-- Funções principais: entrypoint real (iej/ij) e nomes-chave (main, entry0, _start, WinMain).
-- Todas as funções (aflj): endereço (VA), size, realsz, nbbs, calltype/cc, nargs, nome.
-- Strings (izj): amostra das principais strings.
-- Pseudocódigo C da main: r2ghidra (pdgj/pdg) com fallback (pdc/pdr/pdd).
-- Mentoria por IA (OpenAI): resumo e próximos passos com base nos dados coletados.
+## Features
 
+**Static Analysis Engine**
+- Multi-format binary parsing (PE/ELF)
+- Security mitigation detection (ASLR, DEP, PIE, Canary)
+- Function discovery and analysis
+- Import/export enumeration
+- String extraction and analysis
 
-## Instalação
+**Control Flow Analysis**
+- Real-time CFG generation via angr
+- Function-level flow visualization
+- Basic block analysis with metrics
+- Connection mapping and statistics
+- ASCII terminal rendering
 
-1) Criar e ativar um virtualenv Python 3.9+ e instalar o pacote em modo editable:
+**Intelligence Layer**
+- AI-powered analysis recommendations
+- Dynamic analysis planning
+- Tool integration guidance
+- Educational context provision
 
-```
+## Installation
+
+```bash
+git clone https://github.com/marcostolosa/REload.Me.git
+cd REload.Me
 pip install -e .
 ```
 
-2) Dependências Python principais: `r2pipe`, `pefile`, `rich`, `typer`, `openai`.
+## Usage
 
-3) Decompilação (opcional): para usar r2ghidra (*r2pm -i r2ghidra*) (`pdg`/`pdgj`), garanta o plugin disponível no ambiente do r2 utilizado pelo r2pipe. Sem ele, o sistema tenta fallbacks (`pdc`, `pdr`, `pdd`).
+```bash
+# Basic analysis
+reloadme analyze target.exe
 
-## Uso
+# Include CFG analysis
+reloadme analyze target.exe --cfg
 
-```
-reloadme analyse ./exemplo.bin
-reloadme analyze ./exemplo.bin
-```
-
-Fluxo de saída (em ordem):
-- Informações do Binário (iI)
-- Features de Segurança (checksec)
-- Funções Principais
-- Todas as Funções (aflj)
-- Strings (top 50)
-- Pseudocódigo C da main (quando disponível)
-- Análise do Mentor de IA (opcional)
-
-## Configuração da IA (OpenAI)
-
-Defina a variável `OPENAI_API_KEY` ou crie um arquivo `.r2ai.openai-key` contendo a chave na primeira linha.
-
-Linux/macOS:
-```
-export OPENAI_API_KEY="sua_chave"
+# Function-specific CFG
+reloadme analyze target.exe --cfg-function main
 ```
 
-Windows (PowerShell):
+## Command Reference
+
+| Option | Description |
+|--------|-------------|
+| `analyze <file>` | Perform static analysis |
+| `--cfg` | Include full binary CFG |
+| `--cfg-function <name>` | Analyze specific function CFG |
+
+## Analysis Output
+
+**Binary Information**
+- Architecture and platform details
+- Compilation metadata
+- Entry point identification
+
+**Security Assessment**
 ```
-$env:OPENAI_API_KEY="sua_chave"
+┌─────────────── Security Features ───────────────┐
+│ Canary     │ Enabled                           │
+│ NX (DEP)   │ Enabled                           │
+│ PIE        │ Enabled                           │
+│ ASLR       │ Enabled                           │
+└───────────────────────────────────────────────┘
 ```
 
-Arquivo `.r2ai.openai-key` (CWD ou HOME):
+**Function Analysis**
+- Complete function enumeration
+- Entry point detection
+- Call convention analysis
+- Size and complexity metrics
+
+**CFG Visualization**
 ```
-sk-...sua_chave...
++- 0x401000 (size: 7, instr: 1)
+  +-> 0x401007
+  |
++- 0x401007 (size: 17, instr: 4)
+  +-> 0x401018
+  |
++- 0x401018 (size: 4, instr: 1)
+  +-> 0x40101d
+  +-> 0x40101c
 ```
 
-Se a chamada à API falhar, a execução continua e apenas a análise local é exibida.
+## Architecture
 
+```
+reloadme/
+├── analysis/
+│   ├── static_analyzer.py    # Core analysis engine
+│   └── cfg_analyzer.py       # CFG generation
+├── presentation/
+│   ├── display.py           # Output formatting
+│   └── cfg_display.py       # CFG visualization
+├── mentorship/
+│   └── ai_mentor.py         # Intelligence layer
+└── main.py                  # CLI interface
+```
+
+## Dependencies
+
+**Core Requirements**
+- Python 3.9+
+- radare2/r2pipe
+- rich (terminal UI)
+- typer (CLI framework)
+
+**CFG Analysis**
+- angr (binary analysis)
+- graphviz (visualization)
+
+**AI Features**
+- OpenAI API (optional)
+
+## Configuration
+
+Set OpenAI API key for intelligence features:
+```bash
+export OPENAI_API_KEY="your-key-here"
+```
+
+## License
+
+MIT License - see [LICENSE](LICENSE) file.
+
+## Technical Notes
+
+- CFG generation requires angr framework
+- Large binaries may require extended analysis time
+- Terminal output optimized for dark themes
+- Cross-platform compatibility verified
+
+---
+
+**REload.Me** - Professional binary analysis framework
