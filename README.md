@@ -71,12 +71,12 @@ reloadme analyze target.exe --cfg-function main
 
 **Security Assessment**
 ```
-┌─────────────── Security Features ───────────────┐
-│ Canary     │ Enabled                           │
-│ NX (DEP)   │ Enabled                           │
-│ PIE        │ Enabled                           │
-│ ASLR       │ Enabled                           │
-└───────────────────────────────────────────────┘
+┌─────────── Security Features ───────────┐
+│ Canary                  │   Enabled     │
+│ NX (DEP)                │   Enabled     │
+│ PIE                     │   Enabled     │
+│ ASLR                    │   Enabled     │
+└─────────────────────────────────────────┘
 ```
 
 **Function Analysis**
