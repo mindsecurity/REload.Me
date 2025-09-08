@@ -1,35 +1,46 @@
-# Diretórios ocultos / editor
-.vscode/
-.idea/
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+.python-version
 
-# Ambientes virtuais
-.venv/
-venv/
-
-# Build e dist
+# Packaging
 build/
 dist/
 *.egg-info/
+.eggs/
+pip-wheel-metadata/
 
-# Data runtime
-data/exploits/
-data/uploads/
-data/reports/
-
-# Logs
-*.log
-
-# Arquivos de cache de ferramentas
-.cache/
-coverage/
-.tox/
-.mypy_cache/
-.pytest_cache/
-*.prof
-
-# extra
+# Environments
 .env
-reloadai.db
-challenges/
+.env.*
+.venv/
+venv/
+ENV/
+
+# Test / Coverage
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Tools caches
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+
+# Editors / OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Project specific
+.r2ai.openai-key
+
